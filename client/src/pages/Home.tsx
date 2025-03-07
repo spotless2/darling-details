@@ -63,28 +63,28 @@ export default function Home() {
               className="max-w-4xl mx-auto text-center mb-16"
             >
               <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                Why Choose Darling Details
+                {t('whyChooseUs.title')}
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300">
-                We bring your vision to life with our premium event rental collection
+                {t('whyChooseUs.subtitle')}
               </p>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 {
-                  title: "Premium Quality",
-                  description: "Carefully curated, high-quality decorations that make your event stand out",
+                  title: t('features.quality.title'),
+                  description: t('features.quality.description'),
                   icon: "✨"
                 },
                 {
-                  title: "Expert Setup",
-                  description: "Professional installation and removal service for a stress-free experience",
+                  title: t('features.setup.title'),
+                  description: t('features.setup.description'),
                   icon: "🎯"
                 },
                 {
-                  title: "Personalized Service",
-                  description: "Dedicated support to help you create your perfect event aesthetic",
+                  title: t('features.service.title'),
+                  description: t('features.service.description'),
                   icon: "💝"
                 }
               ].map((feature, index) => (
@@ -136,7 +136,7 @@ export default function Home() {
                           {t('products.weddings')}
                         </h3>
                         <p className="text-gray-200">
-                          Discover our elegant wedding collection
+                          {t('products.weddings.description')}
                         </p>
                       </div>
                     </div>
@@ -165,7 +165,7 @@ export default function Home() {
                           {t('products.baptism')}
                         </h3>
                         <p className="text-gray-200">
-                          Beautiful essentials for baptism celebrations
+                          {t('products.baptism.description')}
                         </p>
                       </div>
                     </div>
@@ -194,7 +194,7 @@ export default function Home() {
                           {t('products.events')}
                         </h3>
                         <p className="text-gray-200">
-                          Create memorable special events
+                          {t('products.events.description')}
                         </p>
                       </div>
                     </div>
@@ -209,24 +209,24 @@ export default function Home() {
         <section className="py-20 bg-white/50 dark:bg-gray-900/50">
           <div className="container mx-auto px-6">
             <h2 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">
-              What Our Clients Say
+              {t('testimonials.title')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
                 {
-                  name: "Maria P.",
-                  role: "Bride",
-                  content: "The decorations were absolutely stunning. Everyone at my wedding was amazed by the attention to detail."
+                  name: t('testimonials.client1.name'),
+                  role: t('testimonials.client1.role'),
+                  content: t('testimonials.client1.content')
                 },
                 {
-                  name: "Alexandru D.",
-                  role: "Event Planner",
-                  content: "Working with Darling Details has been a pleasure. Their professionalism and quality of service is outstanding."
+                  name: t('testimonials.client2.name'),
+                  role: t('testimonials.client2.role'),
+                  content: t('testimonials.client2.content')
                 },
                 {
-                  name: "Elena M.",
-                  role: "Mother",
-                  content: "They made my daughter's baptism truly special. The setup was perfect and the cleanup was quick and efficient."
+                  name: t('testimonials.client3.name'),
+                  role: t('testimonials.client3.role'),
+                  content: t('testimonials.client3.content')
                 }
               ].map((testimonial, index) => (
                 <motion.div
@@ -252,90 +252,6 @@ export default function Home() {
                   </div>
                 </motion.div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Products Section */}
-        <section className="py-20 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
-          <div className="container mx-auto px-6">
-            <h2 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">
-              {t('products.title')}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="group bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
-              >
-                <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&auto=format&fit=crop&q=60"
-                    alt="Wedding Decorations"
-                    className="w-full h-full object-cover transform transition-transform group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    {t('products.weddings')}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Elegant decorations for your perfect day
-                  </p>
-                </div>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="group bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
-              >
-                <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1515816052601-210d5501d471?w=800&auto=format&fit=crop&q=60"
-                    alt="Baptism Essentials"
-                    className="w-full h-full object-cover transform transition-transform group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    {t('products.baptism')}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Beautiful items for special celebrations
-                  </p>
-                </div>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 }}
-                className="group bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
-              >
-                <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&auto=format&fit=crop&q=60"
-                    alt="Special Events"
-                    className="w-full h-full object-cover transform transition-transform group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    {t('products.events')}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Create unforgettable moments
-                  </p>
-                </div>
-              </motion.div>
             </div>
           </div>
         </section>
