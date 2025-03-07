@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -21,8 +22,15 @@ const loginSchema = z.object({
 });
 
 export default function Login() {
-  const { loginMutation } = useAuth();
+  const { loginMutation, user } = useAuth();
   const [, setLocation] = useLocation();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      setLocation("/admin");
+    }
+  }, [user, setLocation]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
