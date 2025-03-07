@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 const contactSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),
@@ -35,63 +36,21 @@ const contactSchema = z.object({
 
 type ContactSettings = z.infer<typeof contactSchema>;
 
-const defaultValues: ContactSettings = {
-  phone: "",
-  email: "",
-  address: "",
-  mapUrl: "",
-  socialLinks: {
-    facebook: null,
-    instagram: null,
-    twitter: null,
-  },
-  workingHours: {
-    monday: "",
-    tuesday: "",
-    wednesday: "",
-    thursday: "",
-    friday: "",
-    saturday: "",
-    sunday: "",
-  },
-};
-
 export default function Contact() {
   const { toast } = useToast();
   const form = useForm<ContactSettings>({
     resolver: zodResolver(contactSchema),
-    defaultValues,
   });
 
-  const { isLoading } = useQuery<ContactSettings>({
+  const { data: settings, isLoading } = useQuery({
     queryKey: ["/api/admin/contact"],
-    onSuccess: (data) => {
-      if (data) {
-        // Ensure we properly handle the data with casting for type safety
-        const formattedData: ContactSettings = {
-          phone: data.phone || "",
-          email: data.email || "",
-          address: data.address || "",
-          mapUrl: data.mapUrl || "",
-          socialLinks: {
-            facebook: data.socialLinks?.facebook || null,
-            instagram: data.socialLinks?.instagram || null,
-            twitter: data.socialLinks?.twitter || null,
-          },
-          workingHours: {
-            monday: data.workingHours?.monday || "",
-            tuesday: data.workingHours?.tuesday || "",
-            wednesday: data.workingHours?.wednesday || "",
-            thursday: data.workingHours?.thursday || "",
-            friday: data.workingHours?.friday || "",
-            saturday: data.workingHours?.saturday || "",
-            sunday: data.workingHours?.sunday || "",
-          },
-        };
-        form.reset(formattedData);
-      }
-    },
   });
+
+  useEffect(() => {
+    if (settings) {
+      form.reset(settings);
+    }
+  }, [settings, form]);
 
   const updateSettings = useMutation({
     mutationFn: async (data: ContactSettings) => {
