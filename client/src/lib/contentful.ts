@@ -1,4 +1,5 @@
 import { createClient } from 'contentful';
+import type { EntrySkeletonType } from 'contentful';
 
 // Contentful client configuration
 export const contentfulClient = createClient({
@@ -8,10 +9,8 @@ export const contentfulClient = createClient({
 });
 
 // Type definitions for Contentful content models
-export interface Category {
-  sys: {
-    id: string;
-  };
+export interface Category extends EntrySkeletonType {
+  contentTypeId: 'category';
   fields: {
     name: string;
     description: string;
@@ -25,10 +24,8 @@ export interface Category {
   };
 }
 
-export interface Product {
-  sys: {
-    id: string;
-  };
+export interface Product extends EntrySkeletonType {
+  contentTypeId: 'product';
   fields: {
     title: string;
     description: string;
@@ -47,10 +44,8 @@ export interface Product {
   };
 }
 
-export interface ContactInfo {
-  sys: {
-    id: string;
-  };
+export interface ContactInfo extends EntrySkeletonType {
+  contentTypeId: 'contactInfo';
   fields: {
     phone: string;
     email: string;
@@ -65,10 +60,8 @@ export interface ContactInfo {
   };
 }
 
-export interface CompanyStats {
-  sys: {
-    id: string;
-  };
+export interface CompanyStats extends EntrySkeletonType {
+  contentTypeId: 'companyStats';
   fields: {
     totalEvents: string;
     totalVenues: string;

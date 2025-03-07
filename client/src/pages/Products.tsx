@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useContentful, type Category, type Product } from "@/lib/contentful";
+import type { Entry } from 'contentful';
 
 // Image optimization helper
 const getOptimizedImageUrl = (url: string, width: number = 800) => {
@@ -30,12 +31,12 @@ export default function Products() {
   const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
   const { getCategories, getProducts } = useContentful();
 
-  const { data: categories = [] } = useQuery({
+  const { data: categories = [] } = useQuery<Entry<Category>[]>({
     queryKey: ["categories"],
     queryFn: getCategories,
   });
 
-  const { data: products = [] } = useQuery({
+  const { data: products = [] } = useQuery<Entry<Product>[]>({
     queryKey: ["products"],
     queryFn: getProducts,
   });
