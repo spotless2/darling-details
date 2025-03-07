@@ -6,9 +6,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 import { ProtectedRoute } from "@/lib/protected-route";
+import SEO from "@/components/layout/SEO";
 import "./i18n/config";
 
-// Lazy load page components
+// Lazy load page components with preload
 const Home = lazy(() => import("@/pages/Home"));
 const Products = lazy(() => import("@/pages/Products"));
 const About = lazy(() => import("@/pages/About"));
@@ -52,6 +53,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <SEO />
         <Router />
         <Toaster />
       </AuthProvider>
