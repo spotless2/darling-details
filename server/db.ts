@@ -13,7 +13,9 @@ const pool = new Pool({
   password: String(process.env.PGPASSWORD), // Explicitly convert to string
   database: process.env.PGDATABASE || 'darling_details',
   port: parseInt(process.env.PGPORT || '5432'),
-  ssl: false, // Disable SSL for local development
+  ssl: {
+    rejectUnauthorized: false // Allow self-signed certificates
+  },
   max: 20, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
   connectionTimeoutMillis: 2000, // How long to wait before timing out when connecting a new client
