@@ -8,7 +8,8 @@ import {
   LogOut,
   Menu,
   X,
-  FolderTree
+  FolderTree,
+  Phone
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -24,7 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <>
       <Link href="/admin">
         <span className={`flex items-center space-x-2 cursor-pointer ${
-          isActive("/admin") ? "text-primary" : "text-gray-600 hover:text-primary"
+          isActive("/admin") ? "text-primary" : "text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
         }`}>
           <LayoutDashboard size={20} />
           <span>Dashboard</span>
@@ -32,7 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </Link>
       <Link href="/admin/categories">
         <span className={`flex items-center space-x-2 cursor-pointer ${
-          isActive("/admin/categories") ? "text-primary" : "text-gray-600 hover:text-primary"
+          isActive("/admin/categories") ? "text-primary" : "text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
         }`}>
           <FolderTree size={20} />
           <span>Categories</span>
@@ -40,7 +41,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </Link>
       <Link href="/admin/products">
         <span className={`flex items-center space-x-2 cursor-pointer ${
-          isActive("/admin/products") ? "text-primary" : "text-gray-600 hover:text-primary"
+          isActive("/admin/products") ? "text-primary" : "text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
         }`}>
           <Package size={20} />
           <span>Products</span>
@@ -48,10 +49,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </Link>
       <Link href="/admin/inquiries">
         <span className={`flex items-center space-x-2 cursor-pointer ${
-          isActive("/admin/inquiries") ? "text-primary" : "text-gray-600 hover:text-primary"
+          isActive("/admin/inquiries") ? "text-primary" : "text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
         }`}>
           <Mail size={20} />
           <span>Inquiries</span>
+        </span>
+      </Link>
+      <Link href="/admin/contact">
+        <span className={`flex items-center space-x-2 cursor-pointer ${
+          isActive("/admin/contact") ? "text-primary" : "text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary"
+        }`}>
+          <Phone size={20} />
+          <span>Contact Settings</span>
         </span>
       </Link>
     </>

@@ -4,35 +4,54 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Loader2 } from "lucide-react";
 
-type ContactSettings = {
-  id: number;
-  phone: string;
-  email: string;
-  address: string;
-  mapUrl: string;
-  socialLinks: {
-    facebook?: string;
-    instagram?: string;
-    twitter?: string;
-  };
-  workingHours: {
-    [key: string]: string;
-  };
-};
+const contactSchema = z.object({
+  phone: z.string().min(1, "Phone number is required"),
+  email: z.string().email("Invalid email address"),
+  address: z.string().min(1, "Address is required"),
+  mapUrl: z.string().min(1, "Map URL is required").url("Invalid URL"),
+  socialLinks: z.object({
+    facebook: z.string().url("Invalid Facebook URL").optional(),
+    instagram: z.string().url("Invalid Instagram URL").optional(),
+    twitter: z.string().url("Invalid Twitter URL").optional(),
+  }),
+  workingHours: z.record(z.string()),
+});
+
+type ContactSettings = z.infer<typeof contactSchema>;
 
 export default function Contact() {
   const { toast } = useToast();
+  const form = useForm<ContactSettings>({
+    resolver: zodResolver(contactSchema),
+  });
 
   const { data: settings, isLoading } = useQuery<ContactSettings>({
     queryKey: ["/api/admin/contact"],
+    onSuccess: (data) => {
+      if (data) {
+        form.reset(data);
+      }
+    },
   });
 
   const updateSettings = useMutation({
-    mutationFn: async (data: Omit<ContactSettings, "id">) => {
+    mutationFn: async (data: ContactSettings) => {
       const res = await apiRequest("PUT", "/api/admin/contact", data);
       if (!res.ok) throw new Error("Failed to update contact settings");
       return res.json();
@@ -46,32 +65,15 @@ export default function Contact() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = {
-      phone: formData.get("phone") as string,
-      email: formData.get("email") as string,
-      address: formData.get("address") as string,
-      mapUrl: formData.get("mapUrl") as string,
-      socialLinks: {
-        facebook: formData.get("facebook") as string,
-        instagram: formData.get("instagram") as string,
-        twitter: formData.get("twitter") as string,
-      },
-      workingHours: {
-        monday: formData.get("monday") as string,
-        tuesday: formData.get("tuesday") as string,
-        wednesday: formData.get("wednesday") as string,
-        thursday: formData.get("thursday") as string,
-        friday: formData.get("friday") as string,
-        saturday: formData.get("saturday") as string,
-        sunday: formData.get("sunday") as string,
-      },
-    };
-
-    updateSettings.mutate(data);
-  };
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -82,74 +84,114 @@ export default function Contact() {
       >
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Contact Settings</h1>
 
-        {isLoading ? (
-          <p>Loading settings...</p>
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle>Edit Contact Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Edit Contact Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit((data) => updateSettings.mutate(data))} className="space-y-6">
                 <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Phone</label>
-                    <Input
-                      name="phone"
-                      defaultValue={settings?.phone}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Email</label>
-                    <Input
-                      name="email"
-                      type="email"
-                      defaultValue={settings?.email}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Address</label>
-                    <Textarea
-                      name="address"
-                      defaultValue={settings?.address}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Google Maps Embed URL</label>
-                    <Input
-                      name="mapUrl"
-                      defaultValue={settings?.mapUrl}
-                      required
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="mapUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Google Maps Embed URL</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <div className="border-t pt-4">
                     <h3 className="text-lg font-medium mb-4">Social Links</h3>
                     <div className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium">Facebook</label>
-                        <Input
-                          name="facebook"
-                          defaultValue={settings?.socialLinks.facebook}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Instagram</label>
-                        <Input
-                          name="instagram"
-                          defaultValue={settings?.socialLinks.instagram}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Twitter</label>
-                        <Input
-                          name="twitter"
-                          defaultValue={settings?.socialLinks.twitter}
-                        />
-                      </div>
+                      <FormField
+                        control={form.control}
+                        name="socialLinks.facebook"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Facebook</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="socialLinks.instagram"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Instagram</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="socialLinks.twitter"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Twitter</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
                   </div>
 
@@ -157,26 +199,43 @@ export default function Contact() {
                     <h3 className="text-lg font-medium mb-4">Working Hours</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map((day) => (
-                        <div key={day}>
-                          <label className="text-sm font-medium capitalize">{day}</label>
-                          <Input
-                            name={day}
-                            defaultValue={settings?.workingHours[day]}
-                            placeholder="e.g., 9:00 AM - 5:00 PM"
-                          />
-                        </div>
+                        <FormField
+                          key={day}
+                          control={form.control}
+                          name={`workingHours.${day}`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="capitalize">{day}</FormLabel>
+                              <FormControl>
+                                <Input {...field} placeholder="e.g., 9:00 AM - 5:00 PM" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       ))}
                     </div>
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full">
-                  Save Changes
+                <Button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary/90"
+                  disabled={updateSettings.isPending}
+                >
+                  {updateSettings.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving Changes...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
                 </Button>
               </form>
-            </CardContent>
-          </Card>
-        )}
+            </Form>
+          </CardContent>
+        </Card>
       </motion.div>
     </AdminLayout>
   );
