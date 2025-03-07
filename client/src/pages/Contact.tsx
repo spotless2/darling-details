@@ -20,10 +20,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Facebook, Instagram, Twitter } from "lucide-react";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 characters"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
+  name: z.string().min(2, {
+    message: "contact.form.errors.nameRequired"
+  }),
+  email: z.string().email({
+    message: "contact.form.errors.emailInvalid"
+  }),
+  phone: z.string().min(10, {
+    message: "contact.form.errors.phoneRequired"
+  }),
+  message: z.string().min(10, {
+    message: "contact.form.errors.messageRequired"
+  }),
 });
 
 type ContactSettings = {
@@ -68,7 +76,7 @@ export default function Contact() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit form');
+        throw new Error(t('contact.form.errors.submitFailed'));
       }
 
       return response.json();
@@ -113,7 +121,7 @@ export default function Contact() {
             <p className="text-xl text-gray-700 dark:text-gray-300">{t('contact.subtitle')}</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <div className="grid md:grid-cols-2 gap-8">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -211,30 +219,30 @@ export default function Contact() {
                   <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-lg p-8 shadow-lg">
                     <div className="space-y-6">
                       <div>
-                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.email')}</h2>
+                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.email')}</h2>
                         <p className="text-gray-700 dark:text-gray-300">{settings.email}</p>
                       </div>
                       <div>
-                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.phone')}</h2>
+                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.phone')}</h2>
                         <p className="text-gray-700 dark:text-gray-300">{settings.phone}</p>
                       </div>
                       <div>
-                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.address')}</h2>
+                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.address')}</h2>
                         <p className="text-gray-700 dark:text-gray-300">{settings.address}</p>
                       </div>
                       <div>
-                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.workingHours')}</h2>
+                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.workingHours')}</h2>
                         <div className="space-y-2">
                           {Object.entries(settings.workingHours).map(([day, hours]) => (
                             <div key={day} className="flex justify-between">
-                              <span className="text-gray-600 dark:text-gray-400 capitalize">{day}</span>
+                              <span className="text-gray-600 dark:text-gray-400 capitalize">{t(`contact.days.${day}`)}</span>
                               <span className="text-gray-700 dark:text-gray-300">{hours}</span>
                             </div>
                           ))}
                         </div>
                       </div>
                       <div>
-                        <h2 className="text-gray-900 dark:text-white font-semibold mb-4">{t('contact.social')}</h2>
+                        <h2 className="text-gray-900 dark:text-white font-semibold mb-4">{t('contact.info.social')}</h2>
                         <div className="flex space-x-4">
                           {Object.entries(settings.socialLinks).map(([platform, url]) => {
                             if (!url) return null;

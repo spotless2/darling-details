@@ -60,9 +60,41 @@ const resources = {
       // Contact Section
       "contact.title": "Contact Us",
       "contact.subtitle": "Let's Make Your Event Special",
-      "contact.email": "Email",
-      "contact.phone": "Phone",
-      "contact.address": "Address"
+
+      // Contact Form
+      "contact.form.name": "Name",
+      "contact.form.namePlaceholder": "Your name",
+      "contact.form.email": "Email",
+      "contact.form.emailPlaceholder": "your.email@example.com",
+      "contact.form.phone": "Phone",
+      "contact.form.phonePlaceholder": "Your phone number",
+      "contact.form.message": "Message",
+      "contact.form.messagePlaceholder": "Your message",
+      "contact.form.submit": "Send Message",
+      "contact.form.sending": "Sending...",
+
+      // Contact Form Errors
+      "contact.form.errors.nameRequired": "Name is required",
+      "contact.form.errors.emailInvalid": "Invalid email address",
+      "contact.form.errors.phoneRequired": "Phone number is required",
+      "contact.form.errors.messageRequired": "Message is required",
+      "contact.form.errors.submitFailed": "Failed to send message",
+
+      // Contact Info
+      "contact.info.email": "Email",
+      "contact.info.phone": "Phone",
+      "contact.info.address": "Address",
+      "contact.info.workingHours": "Working Hours",
+      "contact.info.social": "Follow Us",
+
+      // Days
+      "contact.days.monday": "Monday",
+      "contact.days.tuesday": "Tuesday",
+      "contact.days.wednesday": "Wednesday",
+      "contact.days.thursday": "Thursday",
+      "contact.days.friday": "Friday",
+      "contact.days.saturday": "Saturday",
+      "contact.days.sunday": "Sunday"
     }
   },
   ro: {
@@ -122,9 +154,41 @@ const resources = {
       // Contact Section
       "contact.title": "Contactează-ne",
       "contact.subtitle": "Hai să Facem Evenimentul Tău Special",
-      "contact.email": "Email",
-      "contact.phone": "Telefon",
-      "contact.address": "Adresă"
+
+      // Contact Form
+      "contact.form.name": "Nume",
+      "contact.form.namePlaceholder": "Numele tău",
+      "contact.form.email": "Email",
+      "contact.form.emailPlaceholder": "email@exemplu.com",
+      "contact.form.phone": "Telefon",
+      "contact.form.phonePlaceholder": "Numărul tău de telefon",
+      "contact.form.message": "Mesaj",
+      "contact.form.messagePlaceholder": "Mesajul tău",
+      "contact.form.submit": "Trimite mesajul",
+      "contact.form.sending": "Se trimite...",
+
+      // Contact Form Errors
+      "contact.form.errors.nameRequired": "Numele este obligatoriu",
+      "contact.form.errors.emailInvalid": "Adresa de email nu este validă",
+      "contact.form.errors.phoneRequired": "Numărul de telefon este obligatoriu",
+      "contact.form.errors.messageRequired": "Mesajul este obligatoriu",
+      "contact.form.errors.submitFailed": "Nu s-a putut trimite mesajul",
+
+      // Contact Info
+      "contact.info.email": "Email",
+      "contact.info.phone": "Telefon",
+      "contact.info.address": "Adresă",
+      "contact.info.workingHours": "Program",
+      "contact.info.social": "Urmărește-ne",
+
+      // Days
+      "contact.days.monday": "Luni",
+      "contact.days.tuesday": "Marți",
+      "contact.days.wednesday": "Miercuri",
+      "contact.days.thursday": "Joi",
+      "contact.days.friday": "Vineri",
+      "contact.days.saturday": "Sâmbătă",
+      "contact.days.sunday": "Duminică"
     }
   }
 };
