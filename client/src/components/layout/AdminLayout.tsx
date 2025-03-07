@@ -7,7 +7,8 @@ import {
   Mail, 
   LogOut,
   Menu,
-  X
+  X,
+  FolderTree
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -27,6 +28,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }`}>
           <LayoutDashboard size={20} />
           <span>Dashboard</span>
+        </span>
+      </Link>
+      <Link href="/admin/categories">
+        <span className={`flex items-center space-x-2 cursor-pointer ${
+          isActive("/admin/categories") ? "text-primary" : "text-gray-600 hover:text-primary"
+        }`}>
+          <FolderTree size={20} />
+          <span>Categories</span>
         </span>
       </Link>
       <Link href="/admin/products">

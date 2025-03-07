@@ -35,8 +35,8 @@ export default function Products() {
   const categoriesWithProducts = categories.reduce((acc, category) => {
     const categoryProducts = products.filter(product => product.categoryId === category.id);
     acc[category.name] = {
-      title: t(`products.${category.name}`),
-      description: t(`products.desc.${category.name}`),
+      title: category.name,
+      description: category.description,
       mainImage: category.mainImage,
       gallery: categoryProducts.map(product => ({
         image: product.image,
