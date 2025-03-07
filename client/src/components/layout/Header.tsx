@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Moon, Sun, Menu, X } from "lucide-react";
 
 export default function Header() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { scrollY } = useScroll();
   const backgroundColor = useTransform(
     scrollY,
@@ -41,6 +41,11 @@ export default function Header() {
     document.documentElement.classList.toggle('dark');
   };
 
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'ro' ? 'en' : 'ro';
+    i18n.changeLanguage(newLang);
+  };
+
   const isActive = (path: string) => location === path;
 
   const NavLinks = () => (
@@ -64,6 +69,13 @@ export default function Header() {
           isActive("/about") ? "text-primary" : "text-gray-600 dark:text-gray-300 hover:text-primary"
         }`}>
           {t('nav.about')}
+        </span>
+      </Link>
+      <Link href="/contact">
+        <span className={`cursor-pointer transition-colors ${
+          isActive("/contact") ? "text-primary" : "text-gray-600 dark:text-gray-300 hover:text-primary"
+        }`}>
+          {t('nav.contact')}
         </span>
       </Link>
     </>
@@ -94,6 +106,19 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center space-x-4">
+          {/* Language Switcher */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleLanguage}
+            className="text-gray-600 dark:text-gray-300 hover:text-primary"
+          >
+            <span className="text-lg">
+              {i18n.language === 'ro' ? '🇷🇴' : '🇬🇧'}
+            </span>
+          </Button>
+
+          {/* Theme Switcher */}
           <Button
             variant="ghost"
             size="icon"
