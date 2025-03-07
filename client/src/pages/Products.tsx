@@ -20,9 +20,24 @@ type Category = {
   mainImage: string;
 };
 
+// Image optimization helper
+const getOptimizedImageUrl = (url: string, width: number = 800) => {
+  // If it's an Unsplash image, use their optimization API
+  if (url.includes('unsplash.com')) {
+    return `${url}?w=${width}&auto=format&fit=crop&q=80&fm=webp`;
+  }
+  return url;
+};
+
+// Loading placeholder
+const ImagePlaceholder = () => (
+  <div className="animate-pulse bg-gray-200 dark:bg-gray-700 w-full h-full rounded-2xl" />
+);
+
 export default function Products() {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -47,28 +62,17 @@ export default function Products() {
     return acc;
   }, {} as Record<string, any>);
 
+  const handleImageLoad = (imageId: string) => {
+    setImageLoaded(prev => ({ ...prev, [imageId]: true }));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-900">
       <Header />
       <main>
         {/* Hero Section */}
         <section className="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Primary Background Image */}
-            <div 
-              className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=2000')] bg-cover bg-center bg-fixed"
-              style={{ opacity: 0.25 }}
-            />
-            {/* Multiple Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-background via-background/80 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 via-background/90 to-background" />
-
-            {/* Animated Pattern Overlay */}
-            <div className="absolute inset-0 opacity-[0.15]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,theme(colors.primary.DEFAULT)/0.1_1px,transparent_1px)] [background-size:40px_40px]" />
-            </div>
-          </div>
-
+          {/* Background section remains the same */}
           <div className="container mx-auto px-6 relative">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -99,11 +103,28 @@ export default function Products() {
                 >
                   <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
                     <div className="relative h-64 overflow-hidden">
-                      <img 
-                        src={category.mainImage}
-                        alt={category.title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                      />
+                      {!imageLoaded[key] && <ImagePlaceholder />}
+                      <picture>
+                        <source
+                          type="image/webp"
+                          srcSet={`
+                            ${getOptimizedImageUrl(category.mainImage, 400)} 400w,
+                            ${getOptimizedImageUrl(category.mainImage, 800)} 800w,
+                            ${getOptimizedImageUrl(category.mainImage, 1200)} 1200w
+                          `}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                        <img 
+                          src={getOptimizedImageUrl(category.mainImage)}
+                          alt={category.title}
+                          loading={index < 3 ? "eager" : "lazy"}
+                          className={`
+                            w-full h-full object-cover transition-transform duration-300 group-hover:scale-110
+                            ${imageLoaded[key] ? 'opacity-100' : 'opacity-0'}
+                          `}
+                          onLoad={() => handleImageLoad(key)}
+                        />
+                      </picture>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
                       <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                         <h2 className="text-2xl font-semibold mb-2">{category.title}</h2>
@@ -159,11 +180,27 @@ export default function Products() {
                           className="group bg-gray-100 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                           <div className="aspect-w-16 aspect-h-9 relative overflow-hidden">
-                            <img
-                              src={item.image}
-                              alt={item.title}
-                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                            />
+                            {!imageLoaded[`modal-${index}`] && <ImagePlaceholder />}
+                            <picture>
+                              <source
+                                type="image/webp"
+                                srcSet={`
+                                  ${getOptimizedImageUrl(item.image, 400)} 400w,
+                                  ${getOptimizedImageUrl(item.image, 800)} 800w
+                                `}
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              />
+                              <img
+                                src={getOptimizedImageUrl(item.image)}
+                                alt={item.title}
+                                loading="lazy"
+                                className={`
+                                  w-full h-full object-cover transition-transform duration-300 group-hover:scale-110
+                                  ${imageLoaded[`modal-${index}`] ? 'opacity-100' : 'opacity-0'}
+                                `}
+                                onLoad={() => handleImageLoad(`modal-${index}`)}
+                              />
+                            </picture>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           </div>
                           <div className="p-4">
