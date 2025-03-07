@@ -26,26 +26,64 @@ const contactSchema = z.object({
   address: z.string().min(1, "Address is required"),
   mapUrl: z.string().min(1, "Map URL is required").url("Invalid URL"),
   socialLinks: z.object({
-    facebook: z.string().url("Invalid Facebook URL").optional(),
-    instagram: z.string().url("Invalid Instagram URL").optional(),
-    twitter: z.string().url("Invalid Twitter URL").optional(),
+    facebook: z.string().url("Invalid Facebook URL").nullable(),
+    instagram: z.string().url("Invalid Instagram URL").nullable(),
+    twitter: z.string().url("Invalid Twitter URL").nullable(),
   }),
   workingHours: z.record(z.string()),
 });
 
 type ContactSettings = z.infer<typeof contactSchema>;
 
+const defaultValues: ContactSettings = {
+  phone: "",
+  email: "",
+  address: "",
+  mapUrl: "",
+  socialLinks: {
+    facebook: null,
+    instagram: null,
+    twitter: null,
+  },
+  workingHours: {
+    monday: "",
+    tuesday: "",
+    wednesday: "",
+    thursday: "",
+    friday: "",
+    saturday: "",
+    sunday: "",
+  },
+};
+
 export default function Contact() {
   const { toast } = useToast();
   const form = useForm<ContactSettings>({
     resolver: zodResolver(contactSchema),
+    defaultValues,
   });
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings, isLoading } = useQuery<ContactSettings>({
     queryKey: ["/api/admin/contact"],
     onSuccess: (data) => {
       if (data) {
-        form.reset(data);
+        form.reset({
+          ...data,
+          socialLinks: {
+            facebook: data.socialLinks?.facebook || null,
+            instagram: data.socialLinks?.instagram || null,
+            twitter: data.socialLinks?.twitter || null,
+          },
+          workingHours: {
+            monday: data.workingHours?.monday || "",
+            tuesday: data.workingHours?.tuesday || "",
+            wednesday: data.workingHours?.wednesday || "",
+            thursday: data.workingHours?.thursday || "",
+            friday: data.workingHours?.friday || "",
+            saturday: data.workingHours?.saturday || "",
+            sunday: data.workingHours?.sunday || "",
+          },
+        });
       }
     },
   });
@@ -154,11 +192,15 @@ export default function Contact() {
                       <FormField
                         control={form.control}
                         name="socialLinks.facebook"
-                        render={({ field }) => (
+                        render={({ field: { value, onChange, ...field } }) => (
                           <FormItem>
                             <FormLabel>Facebook</FormLabel>
                             <FormControl>
-                              <Input {...field} value={field.value || ''} />
+                              <Input 
+                                {...field} 
+                                value={value || ''} 
+                                onChange={(e) => onChange(e.target.value || null)}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -168,11 +210,15 @@ export default function Contact() {
                       <FormField
                         control={form.control}
                         name="socialLinks.instagram"
-                        render={({ field }) => (
+                        render={({ field: { value, onChange, ...field } }) => (
                           <FormItem>
                             <FormLabel>Instagram</FormLabel>
                             <FormControl>
-                              <Input {...field} value={field.value || ''} />
+                              <Input 
+                                {...field} 
+                                value={value || ''} 
+                                onChange={(e) => onChange(e.target.value || null)}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -182,11 +228,15 @@ export default function Contact() {
                       <FormField
                         control={form.control}
                         name="socialLinks.twitter"
-                        render={({ field }) => (
+                        render={({ field: { value, onChange, ...field } }) => (
                           <FormItem>
                             <FormLabel>Twitter</FormLabel>
                             <FormControl>
-                              <Input {...field} value={field.value || ''} />
+                              <Input 
+                                {...field} 
+                                value={value || ''} 
+                                onChange={(e) => onChange(e.target.value || null)}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -207,7 +257,7 @@ export default function Contact() {
                             <FormItem>
                               <FormLabel className="capitalize">{day}</FormLabel>
                               <FormControl>
-                                <Input {...field} placeholder="e.g., 9:00 AM - 5:00 PM" value={field.value || ''} />
+                                <Input {...field} placeholder="e.g., 9:00 AM - 5:00 PM" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
