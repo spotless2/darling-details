@@ -9,8 +9,9 @@ import Products from "@/pages/Products";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import AdminLogin from "@/pages/admin/Login";
+import AdminDashboard from "@/pages/admin/Dashboard";
 import { ProtectedRoute } from "@/lib/protected-route";
-import "./i18n/config"; // Import i18n configuration
+import "./i18n/config";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/admin/login" component={AdminLogin} />
+      <ProtectedRoute path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
