@@ -142,6 +142,117 @@ export default function Home() {
           </div>
         </section>
 
+        {/* About Section */}
+        <section className="py-20 bg-white/80 dark:bg-gray-900/80">
+          <div className="container mx-auto px-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="max-w-4xl mx-auto text-center mb-16"
+            >
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                {t('about.title')}
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300">
+                {t('about.description')}
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: "✨",
+                  title: t('about.features.quality'),
+                  description: t('about.desc.quality')
+                },
+                {
+                  icon: "🎯",
+                  title: t('about.features.setup'),
+                  description: t('about.desc.setup')
+                },
+                {
+                  icon: "💝",
+                  title: t('about.features.packages'),
+                  description: t('about.desc.packages')
+                }
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.2 }}
+                  className="text-center p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300"
+                >
+                  <div className="text-4xl mb-4">{feature.icon}</div>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {feature.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Experience and Numbers */}
+            <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="space-y-6"
+              >
+                <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {t('about.experience.title')}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  {t('about.experience.description')}
+                </p>
+                <ul className="space-y-4">
+                  {[
+                    t('about.experience.point1'),
+                    t('about.experience.point2'),
+                    t('about.experience.point3')
+                  ].map((point, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-primary mr-2">✓</span>
+                      <span className="text-gray-600 dark:text-gray-300">{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="grid grid-cols-2 gap-6"
+              >
+                {[
+                  { number: "500+", label: t('about.stats.events') },
+                  { number: "50+", label: t('about.stats.venues') },
+                  { number: "1000+", label: t('about.stats.clients') },
+                  { number: "100%", label: t('about.stats.satisfaction') }
+                ].map((stat, index) => (
+                  <div
+                    key={index}
+                    className="text-center p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg"
+                  >
+                    <div className="text-3xl font-bold text-primary mb-2">
+                      {stat.number}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
         {/* Featured Collections */}
         <section className="py-20">
           <div className="container mx-auto px-6">
