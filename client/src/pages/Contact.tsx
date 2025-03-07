@@ -15,9 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { queryClient } from "@/lib/queryClient";
+import { Loader2, Facebook, Instagram, Twitter } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -26,9 +26,27 @@ const formSchema = z.object({
   message: z.string().min(10, "Message must be at least 10 characters"),
 });
 
+type ContactSettings = {
+  phone: string;
+  email: string;
+  address: string;
+  mapUrl: string;
+  socialLinks: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+  };
+  workingHours: Record<string, string>;
+};
+
 export default function Contact() {
   const { t } = useTranslation();
   const { toast } = useToast();
+
+  const { data: settings, isLoading: settingsLoading } = useQuery<ContactSettings>({
+    queryKey: ["/api/contact"],
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -75,11 +93,17 @@ export default function Contact() {
     mutation.mutate(values);
   }
 
+  const socialIcons = {
+    facebook: Facebook,
+    instagram: Instagram,
+    twitter: Twitter,
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-900">
       <Header />
       <main className="container mx-auto px-6 pt-24 pb-16">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -103,9 +127,9 @@ export default function Contact() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Name</FormLabel>
+                        <FormLabel>{t('contact.form.name')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Your name" {...field} />
+                          <Input placeholder={t('contact.form.namePlaceholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -116,9 +140,9 @@ export default function Contact() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>{t('contact.form.email')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="your@email.com" {...field} />
+                          <Input placeholder={t('contact.form.emailPlaceholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -129,9 +153,9 @@ export default function Contact() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone</FormLabel>
+                        <FormLabel>{t('contact.form.phone')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Your phone number" {...field} />
+                          <Input placeholder={t('contact.form.phonePlaceholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -142,10 +166,10 @@ export default function Contact() {
                     name="message"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Message</FormLabel>
+                        <FormLabel>{t('contact.form.message')}</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Tell us about your event..."
+                            placeholder={t('contact.form.messagePlaceholder')}
                             className="min-h-[120px]"
                             {...field}
                           />
@@ -154,8 +178,19 @@ export default function Contact() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full bg-primary text-white hover:bg-primary/90">
-                    Send Message
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-primary hover:bg-primary/90"
+                    disabled={mutation.isPending}
+                  >
+                    {mutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t('contact.form.sending')}
+                      </>
+                    ) : (
+                      t('contact.form.submit')
+                    )}
                   </Button>
                 </form>
               </Form>
@@ -167,34 +202,79 @@ export default function Contact() {
               transition={{ delay: 0.4 }}
               className="space-y-8"
             >
-              <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-lg p-8 shadow-lg">
-                <div className="space-y-6">
-                  <div>
-                    <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.email')}</h2>
-                    <p className="text-gray-700 dark:text-gray-300">contact@darlingdetails.com</p>
-                  </div>
-                  <div>
-                    <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.phone')}</h2>
-                    <p className="text-gray-700 dark:text-gray-300">+40 123 456 789</p>
-                  </div>
-                  <div>
-                    <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.address')}</h2>
-                    <p className="text-gray-700 dark:text-gray-300">Bucharest, Romania</p>
-                  </div>
+              {settingsLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
-              </div>
+              ) : settings ? (
+                <>
+                  <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-lg p-8 shadow-lg">
+                    <div className="space-y-6">
+                      <div>
+                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.email')}</h2>
+                        <p className="text-gray-700 dark:text-gray-300">{settings.email}</p>
+                      </div>
+                      <div>
+                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.phone')}</h2>
+                        <p className="text-gray-700 dark:text-gray-300">{settings.phone}</p>
+                      </div>
+                      <div>
+                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.address')}</h2>
+                        <p className="text-gray-700 dark:text-gray-300">{settings.address}</p>
+                      </div>
+                      <div>
+                        <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.workingHours')}</h2>
+                        <div className="space-y-2">
+                          {Object.entries(settings.workingHours).map(([day, hours]) => (
+                            <div key={day} className="flex justify-between">
+                              <span className="text-gray-600 dark:text-gray-400 capitalize">{day}</span>
+                              <span className="text-gray-700 dark:text-gray-300">{hours}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h2 className="text-gray-900 dark:text-white font-semibold mb-4">{t('contact.social')}</h2>
+                        <div className="flex space-x-4">
+                          {Object.entries(settings.socialLinks).map(([platform, url]) => {
+                            if (!url) return null;
+                            const Icon = socialIcons[platform as keyof typeof socialIcons];
+                            return (
+                              <motion.a
+                                key={platform}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                              >
+                                <Icon className="h-6 w-6" />
+                              </motion.a>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-              <div className="h-[400px] rounded-lg overflow-hidden shadow-lg">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d91100.56538371563!2d26.0518265!3d44.4379226!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b1f93abf3cad4f%3A0xac0632e37c9ca628!2sBucharest%2C%20Romania!5e0!3m2!1sen!2sus!4v1709827372247!5m2!1sen!2sus"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
-              </div>
+                  <div className="h-[400px] rounded-lg overflow-hidden shadow-lg">
+                    <iframe
+                      src={settings.mapUrl}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    ></iframe>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center text-gray-500 dark:text-gray-400">
+                  {t('contact.error.loadingFailed')}
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
