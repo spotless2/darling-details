@@ -1,94 +1,51 @@
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Header from "@/components/layout/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
-type GalleryItem = {
-  image: string;
+type Product = {
+  id: number;
   title: string;
   description: string;
+  image: string;
+  categoryId: number;
 };
 
-type ProductCategory = {
-  title: string;
+type Category = {
+  id: number;
+  name: string;
   description: string;
   mainImage: string;
-  gallery: GalleryItem[];
 };
 
 export default function Products() {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const categories: Record<string, ProductCategory> = {
-    weddings: {
-      title: t('products.weddings'),
-      description: t('products.desc.wedding'),
-      mainImage: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&auto=format&fit=crop&q=60",
-      gallery: [
-        {
-          image: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&auto=format&fit=crop&q=60",
-          title: "Wedding Centerpiece",
-          description: "Elegant floral arrangements"
-        },
-        {
-          image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&auto=format&fit=crop&q=60",
-          title: "Table Setting",
-          description: "Sophisticated dining experience"
-        },
-        {
-          image: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800&auto=format&fit=crop&q=60",
-          title: "Lighting",
-          description: "Romantic atmosphere"
-        }
-      ]
-    },
-    baptism: {
-      title: t('products.baptism'),
-      description: t('products.desc.baptism'),
-      mainImage: "https://images.unsplash.com/photo-1515816052601-210d5501d471?w=800&auto=format&fit=crop&q=60",
-      gallery: [
-        {
-          image: "https://images.unsplash.com/photo-1513875528452-39400945934d?w=800&auto=format&fit=crop&q=60",
-          title: "Baptism Setup",
-          description: "Complete ceremony decoration"
-        },
-        {
-          image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&auto=format&fit=crop&q=60",
-          title: "Party Decoration",
-          description: "Celebration essentials"
-        },
-        {
-          image: "https://images.unsplash.com/photo-1516714819001-8ee7a13b88d0?w=800&auto=format&fit=crop&q=60",
-          title: "Special Moments",
-          description: "Photo opportunities"
-        }
-      ]
-    },
-    events: {
-      title: t('products.events'),
-      description: t('products.desc.events'),
-      mainImage: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&auto=format&fit=crop&q=60",
-      gallery: [
-        {
-          image: "https://images.unsplash.com/photo-1478146896981-b80fe463b330?w=800&auto=format&fit=crop&q=60",
-          title: "Party Setup",
-          description: "Festive arrangements"
-        },
-        {
-          image: "https://images.unsplash.com/photo-1508461641940-2c564a50ed97?w=800&auto=format&fit=crop&q=60",
-          title: "Corporate Events",
-          description: "Professional settings"
-        },
-        {
-          image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=60",
-          title: "Special Celebrations",
-          description: "Memorable decorations"
-        }
-      ]
-    }
-  };
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+  });
+
+  const { data: products = [] } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+  });
+
+  const categoriesWithProducts = categories.reduce((acc, category) => {
+    const categoryProducts = products.filter(product => product.categoryId === category.id);
+    acc[category.name] = {
+      title: t(`products.${category.name}`),
+      description: t(`products.desc.${category.name}`),
+      mainImage: category.mainImage,
+      gallery: categoryProducts.map(product => ({
+        image: product.image,
+        title: product.title,
+        description: product.description
+      }))
+    };
+    return acc;
+  }, {} as Record<string, any>);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-gray-900">
@@ -96,7 +53,7 @@ export default function Products() {
       <main className="container mx-auto px-6 pt-24">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">{t('products.title')}</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {Object.entries(categories).map(([key, category], index) => (
+          {Object.entries(categoriesWithProducts).map(([key, category], index) => (
             <motion.div
               key={key}
               initial={{ opacity: 0, y: 20 }}
@@ -124,7 +81,7 @@ export default function Products() {
         </div>
 
         <AnimatePresence>
-          {selectedCategory && (
+          {selectedCategory && categoriesWithProducts[selectedCategory] && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -148,10 +105,10 @@ export default function Products() {
                     className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xl"
                   >
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                      {categories[selectedCategory].title}
+                      {categoriesWithProducts[selectedCategory].title}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {categories[selectedCategory].gallery.map((item, index) => (
+                      {categoriesWithProducts[selectedCategory].gallery.map((item: any, index: number) => (
                         <motion.div
                           key={index}
                           initial={{ opacity: 0, y: 20 }}
