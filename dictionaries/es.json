@@ -1,0 +1,78 @@
+{
+  "hero": {
+    "subtitle": "Transforma tus eventos especiales con nuestra colección premium de decoraciones",
+    "cta": "Ver Nuestra Colección"
+  },
+  "products": {
+    "title": "Nuestras Colecciones",
+    "weddings": "Decoraciones de Boda",
+    "weddings.description": "Decoración elegante y romántica para tu día perfecto",
+    "baptism": "Bautizos y Cristianos",
+    "baptism.description": "Celebraciones sagradas con toques de gracia",
+    "events": "Eventos Especiales",
+    "events.description": "Decoración personalizada para cualquier celebración"
+  },
+  "testimonials": {
+    "title": "Lo Que Dicen Nuestros Clientes",
+    "client1": {
+      "name": "Sara Jiménez",
+      "role": "Novia",
+      "content": "La atención al detalle y la calidad de las decoraciones superaron nuestras expectativas. ¡Nuestra boda fue absolutamente mágica!"
+    },
+    "client2": {
+      "name": "Miguel Chen",
+      "role": "Planificador de Eventos",
+      "content": "Como planificador profesional, aprecio su confiabilidad y la calidad constante de sus productos."
+    },
+    "client3": {
+      "name": "Emma Rodríguez",
+      "role": "Gerente de Eventos Corporativos",
+      "content": "Transformaron nuestra gala corporativa en un evento elegante. La decoración fue sofisticada y coincidía perfectamente con nuestra marca."
+    }
+  },
+  "contact": {
+    "title": "Contáctanos",
+    "subtitle": "Hagamos tu evento extraordinario",
+    "form": {
+      "name": "Nombre",
+      "namePlaceholder": "Tu nombre",
+      "email": "Correo",
+      "emailPlaceholder": "tu@correo.com",
+      "phone": "Teléfono",
+      "phonePlaceholder": "Tu número de teléfono",
+      "message": "Mensaje",
+      "messagePlaceholder": "Cuéntanos sobre tu evento...",
+      "submit": "Enviar Mensaje",
+      "errors": {
+        "nameRequired": "Por favor ingresa tu nombre",
+        "emailInvalid": "Por favor ingresa un correo válido",
+        "phoneRequired": "Por favor ingresa tu número de teléfono",
+        "messageRequired": "Por favor cuéntanos sobre tu evento"
+      }
+    },
+    "info": {
+      "email": "Correo",
+      "phone": "Teléfono",
+      "address": "Dirección",
+      "workingHours": "Horario",
+      "social": "Síguenos"
+    },
+    "days": {
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "Sábado",
+      "sunday": "Domingo"
+    },
+    "success": {
+      "title": "¡Mensaje Enviado!",
+      "description": "Nos pondremos en contacto contigo lo antes posible."
+    },
+    "error": {
+      "title": "Error",
+      "loadingFailed": "No se pudo cargar la información de contacto"
+    }
+  }
+}
