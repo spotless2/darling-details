@@ -15,6 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -25,6 +28,7 @@ const formSchema = z.object({
 
 export default function Contact() {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,11 +39,40 @@ export default function Contact() {
     },
   });
 
+  const mutation = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      const response = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit form');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: t('contact.success.title'),
+        description: t('contact.success.description'),
+      });
+      form.reset();
+    },
+    onError: (error) => {
+      toast({
+        title: t('contact.error.title'),
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Here you would typically send the form data to your backend
-    console.log(values);
-    alert("Thank you for your message! We'll get back to you soon.");
-    form.reset();
+    mutation.mutate(values);
   }
 
   return (
