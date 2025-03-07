@@ -100,6 +100,7 @@ export default function Header() {
           <Button 
             variant="default" 
             className="bg-primary text-white hover:bg-primary/90"
+            onClick={() => window.location.href = '/contact'}
           >
             {t('nav.contact')}
           </Button>
