@@ -141,29 +141,19 @@ export class DatabaseStorage implements IStorage {
 
   // Contact Settings methods implementation
   async getContactSettings(): Promise<ContactSettings | undefined> {
-    const result = await this.db.select().from(contactSettings).limit(1);
+    const result = await this.db.select().from(contactSettings).where(sql`${contactSettings.id} = 1`);
     return result[0];
   }
 
   async updateContactSettings(settings: InsertContactSettings): Promise<ContactSettings> {
-    const [existing] = await this.db.select().from(contactSettings).limit(1);
+    // Always update the record with ID 1
+    const [updated] = await this.db
+      .update(contactSettings)
+      .set(settings)
+      .where(sql`${contactSettings.id} = 1`)
+      .returning();
 
-    if (existing) {
-      // Update existing record
-      const [updated] = await this.db
-        .update(contactSettings)
-        .set(settings)
-        .where(sql`${contactSettings.id} = ${existing.id}`)
-        .returning();
-      return updated;
-    } else {
-      // Create new record only if none exists
-      const [created] = await this.db
-        .insert(contactSettings)
-        .values(settings)
-        .returning();
-      return created;
-    }
+    return updated;
   }
 }
 
