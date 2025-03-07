@@ -4,27 +4,17 @@ import { useQuery } from '@tanstack/react-query';
 import Header from "@/components/layout/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-
-type Product = {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  categoryId: number;
-};
-
-type Category = {
-  id: number;
-  name: string;
-  description: string;
-  mainImage: string;
-};
+import { useContentful, type Category, type Product } from "@/lib/contentful";
 
 // Image optimization helper
 const getOptimizedImageUrl = (url: string, width: number = 800) => {
   // If it's an Unsplash image, use their optimization API
   if (url.includes('unsplash.com')) {
     return `${url}?w=${width}&auto=format&fit=crop&q=80&fm=webp`;
+  }
+  // If it's a Contentful image, use their image API
+  if (url.includes('ctfassets.net')) {
+    return `${url}?w=${width}&fm=webp&q=80`;
   }
   return url;
 };
@@ -38,25 +28,30 @@ export default function Products() {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
+  const { getCategories, getProducts } = useContentful();
 
-  const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
   });
 
-  const { data: products = [] } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+  const { data: products = [] } = useQuery({
+    queryKey: ["products"],
+    queryFn: getProducts,
   });
 
   const categoriesWithProducts = categories.reduce((acc, category) => {
-    const categoryProducts = products.filter(product => product.categoryId === category.id);
-    acc[category.name] = {
-      title: category.name,
-      description: category.description,
-      mainImage: category.mainImage,
+    const categoryProducts = products.filter(product => 
+      product.fields.category.sys.id === category.sys.id
+    );
+    acc[category.sys.id] = {
+      title: category.fields.name,
+      description: category.fields.description,
+      mainImage: category.fields.mainImage.fields.file.url,
       gallery: categoryProducts.map(product => ({
-        image: product.image,
-        title: product.title,
-        description: product.description
+        image: product.fields.image.fields.file.url,
+        title: product.fields.title,
+        description: product.fields.description
       }))
     };
     return acc;
@@ -72,7 +67,22 @@ export default function Products() {
       <main>
         {/* Hero Section */}
         <section className="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden">
-          {/* Background section remains the same */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Primary Background Image */}
+            <div 
+              className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=2000')] bg-cover bg-center bg-fixed"
+              style={{ opacity: 0.25 }}
+            />
+            {/* Multiple Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-background via-background/80 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 via-background/90 to-background" />
+
+            {/* Animated Pattern Overlay */}
+            <div className="absolute inset-0 opacity-[0.15]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,theme(colors.primary.DEFAULT)/0.1_1px,transparent_1px)] [background-size:40px_40px]" />
+            </div>
+          </div>
+
           <div className="container mx-auto px-6 relative">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

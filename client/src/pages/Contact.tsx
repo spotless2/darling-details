@@ -15,9 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Facebook, Instagram, Twitter } from "lucide-react";
+import { useContentful, type ContactInfo } from "@/lib/contentful";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -34,25 +35,14 @@ const formSchema = z.object({
   }),
 });
 
-type ContactSettings = {
-  phone: string;
-  email: string;
-  address: string;
-  mapUrl: string;
-  socialLinks: {
-    facebook?: string;
-    instagram?: string;
-    twitter?: string;
-  };
-  workingHours: Record<string, string>;
-};
-
 export default function Contact() {
   const { t } = useTranslation();
   const { toast } = useToast();
+  const { getContactInfo } = useContentful();
 
-  const { data: settings, isLoading: settingsLoading } = useQuery<ContactSettings>({
-    queryKey: ["/api/contact"],
+  const { data: contactInfo, isLoading: settingsLoading } = useQuery<ContactInfo>({
+    queryKey: ["contactInfo"],
+    queryFn: getContactInfo,
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -65,40 +55,35 @@ export default function Contact() {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const response = await fetch('/api/inquiries', {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          access_key: import.meta.env.VITE_WEB3FORMS_KEY,
+          ...values,
+        }),
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        toast({
+          title: t('contact.success.title'),
+          description: t('contact.success.description'),
+        });
+        form.reset();
+      } else {
         throw new Error(t('contact.form.errors.submitFailed'));
       }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: t('contact.success.title'),
-        description: t('contact.success.description'),
-      });
-      form.reset();
-    },
-    onError: (error) => {
+    } catch (error) {
       toast({
         title: t('contact.error.title'),
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: "destructive",
       });
-    },
-  });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    mutation.mutate(values);
+    }
   }
 
   const socialIcons = {
@@ -215,16 +200,10 @@ export default function Contact() {
                       <Button 
                         type="submit" 
                         className="w-full bg-primary hover:bg-primary/90 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-                        disabled={mutation.isPending}
+                        disabled={false} // Removed mutation.isPending as it's not relevant anymore
                       >
-                        {mutation.isPending ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            {t('contact.form.sending')}
-                          </>
-                        ) : (
-                          t('contact.form.submit')
-                        )}
+                        { /*Removed Loading indicator.  Not necessary for Web3Forms */}
+                          {t('contact.form.submit')}
                       </Button>
                     </form>
                   </Form>
@@ -240,26 +219,26 @@ export default function Contact() {
                     <div className="flex items-center justify-center h-full">
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
-                  ) : settings ? (
+                  ) : contactInfo ? (
                     <>
                       <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
                         <div className="space-y-6">
                           <div>
                             <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.email')}</h2>
-                            <p className="text-gray-700 dark:text-gray-300">{settings.email}</p>
+                            <p className="text-gray-700 dark:text-gray-300">{contactInfo.fields.email}</p>
                           </div>
                           <div>
                             <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.phone')}</h2>
-                            <p className="text-gray-700 dark:text-gray-300">{settings.phone}</p>
+                            <p className="text-gray-700 dark:text-gray-300">{contactInfo.fields.phone}</p>
                           </div>
                           <div>
                             <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.address')}</h2>
-                            <p className="text-gray-700 dark:text-gray-300">{settings.address}</p>
+                            <p className="text-gray-700 dark:text-gray-300">{contactInfo.fields.address}</p>
                           </div>
                           <div>
                             <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.workingHours')}</h2>
                             <div className="space-y-2">
-                              {Object.entries(settings.workingHours).map(([day, hours]) => (
+                              {Object.entries(contactInfo.fields.workingHours).map(([day, hours]) => (
                                 <div key={day} className="flex justify-between">
                                   <span className="text-gray-600 dark:text-gray-400 capitalize">{t(`contact.days.${day}`)}</span>
                                   <span className="text-gray-700 dark:text-gray-300">{hours}</span>
@@ -270,7 +249,7 @@ export default function Contact() {
                           <div>
                             <h2 className="text-gray-900 dark:text-white font-semibold mb-4">{t('contact.info.social')}</h2>
                             <div className="flex space-x-4">
-                              {Object.entries(settings.socialLinks).map(([platform, url]) => {
+                              {Object.entries(contactInfo.fields.socialLinks).map(([platform, url]) => {
                                 if (!url) return null;
                                 const Icon = socialIcons[platform as keyof typeof socialIcons];
                                 return (
@@ -294,7 +273,7 @@ export default function Contact() {
 
                       <div className="h-[400px] rounded-2xl overflow-hidden shadow-lg">
                         <iframe
-                          src={settings.mapUrl}
+                          src={contactInfo.fields.mapUrl}
                           width="100%"
                           height="100%"
                           style={{ border: 0 }}
