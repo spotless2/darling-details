@@ -8,10 +8,10 @@ neonConfig.webSocketConstructor = ws;
 
 // Create connection pool using individual environment variables
 const pool = new Pool({ 
-  host: process.env.PGHOST,
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE,
+  host: process.env.PGHOST || 'localhost',
+  user: process.env.PGUSER || 'admin',
+  password: String(process.env.PGPASSWORD), // Explicitly convert to string
+  database: process.env.PGDATABASE || 'darling_details',
   port: parseInt(process.env.PGPORT || '5432'),
   ssl: false, // Disable SSL for local development
   max: 20, // Maximum number of clients in the pool
@@ -27,9 +27,21 @@ pool.on('error', (err) => {
 // Test the connection on startup
 pool.connect().then((client) => {
   console.log('Database connection successful');
+  console.log('Connection details:', {
+    host: process.env.PGHOST,
+    user: process.env.PGUSER,
+    database: process.env.PGDATABASE,
+    port: process.env.PGPORT
+  });
   client.release();
 }).catch((err) => {
   console.error('Error connecting to the database:', err);
+  console.error('Connection details:', {
+    host: process.env.PGHOST,
+    user: process.env.PGUSER,
+    database: process.env.PGDATABASE,
+    port: process.env.PGPORT
+  });
 });
 
 // Create drizzle database instance
