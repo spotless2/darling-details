@@ -41,7 +41,7 @@ export default function Contact() {
     resolver: zodResolver(contactSchema),
   });
 
-  const { data: settings, isLoading } = useQuery<ContactSettings>({
+  const { data: settings, isLoading } = useQuery({
     queryKey: ["/api/admin/contact"],
     onSuccess: (data) => {
       if (data) {
@@ -158,7 +158,7 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel>Facebook</FormLabel>
                             <FormControl>
-                              <Input {...field} />
+                              <Input {...field} value={field.value || ''} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -172,7 +172,7 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel>Instagram</FormLabel>
                             <FormControl>
-                              <Input {...field} />
+                              <Input {...field} value={field.value || ''} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -186,7 +186,7 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel>Twitter</FormLabel>
                             <FormControl>
-                              <Input {...field} />
+                              <Input {...field} value={field.value || ''} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -207,7 +207,7 @@ export default function Contact() {
                             <FormItem>
                               <FormLabel className="capitalize">{day}</FormLabel>
                               <FormControl>
-                                <Input {...field} placeholder="e.g., 9:00 AM - 5:00 PM" />
+                                <Input {...field} placeholder="e.g., 9:00 AM - 5:00 PM" value={field.value || ''} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
