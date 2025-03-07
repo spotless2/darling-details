@@ -26,15 +26,15 @@ export default function About() {
               <ul className="space-y-4 text-gray-700 dark:text-gray-300">
                 <li className="flex items-center">
                   <span className="w-2 h-2 bg-primary rounded-full mr-3"></span>
-                  Quality decorations for every event
+                  {t('about.features.quality')}
                 </li>
                 <li className="flex items-center">
                   <span className="w-2 h-2 bg-primary rounded-full mr-3"></span>
-                  Professional setup and teardown
+                  {t('about.features.setup')}
                 </li>
                 <li className="flex items-center">
                   <span className="w-2 h-2 bg-primary rounded-full mr-3"></span>
-                  Customizable packages
+                  {t('about.features.packages')}
                 </li>
               </ul>
             </div>
