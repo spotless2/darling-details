@@ -3,6 +3,15 @@ import { Link } from "wouter";
 import Header from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { lazy, Suspense } from "react";
+
+// Lazy load the testimonials section
+const TestimonialsSection = lazy(() => import("@/components/home/TestimonialsSection"));
+
+// Loading fallback for images
+const ImageLoader = () => (
+  <div className="animate-pulse bg-gray-200 dark:bg-gray-700 w-full h-full rounded-xl" />
+);
 
 export default function Home() {
   const { t } = useTranslation();
@@ -13,14 +22,16 @@ export default function Home() {
       <main>
         {/* Hero Section */}
         <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-          {/* Background Image with Overlay */}
           <div className="absolute inset-0 pointer-events-none">
             {/* Primary Background Image */}
-            <div 
-              className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=2000')] bg-cover bg-center bg-fixed"
+            <img 
+              src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=2000"
+              alt=""
+              loading="eager" // Load hero image immediately
+              className="absolute inset-0 object-cover w-full h-full"
               style={{ opacity: 0.25 }}
+              fetchPriority="high"
             />
-
             {/* Multiple Gradient Overlays */}
             <div className="absolute inset-0 bg-gradient-to-tr from-background via-background/80 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 via-background/90 to-background" />
@@ -92,146 +103,68 @@ export default function Home() {
             <h2 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">
               {t('products.title')}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-              <Link href="/products">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  whileHover={{ scale: 1.02 }}
-                  className="cursor-pointer"
-                >
-                  <div className="relative h-96 rounded-xl overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&auto=format&fit=crop&q=60"
-                      alt="Wedding Decorations"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent">
-                      <div className="absolute bottom-0 left-0 right-0 p-6">
-                        <h3 className="text-2xl font-semibold text-white mb-2">
-                          {t('products.weddings')}
-                        </h3>
-                        <p className="text-gray-200">
-                          {t('products.weddings.description')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-
-              <Link href="/products">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 }}
-                  whileHover={{ scale: 1.02 }}
-                  className="cursor-pointer"
-                >
-                  <div className="relative h-96 rounded-xl overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1515816052601-210d5501d471?w=800&auto=format&fit=crop&q=60"
-                      alt="Baptism Essentials"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent">
-                      <div className="absolute bottom-0 left-0 right-0 p-6">
-                        <h3 className="text-2xl font-semibold text-white mb-2">
-                          {t('products.baptism')}
-                        </h3>
-                        <p className="text-gray-200">
-                          {t('products.baptism.description')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-
-              <Link href="/products">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.4 }}
-                  whileHover={{ scale: 1.02 }}
-                  className="cursor-pointer"
-                >
-                  <div className="relative h-96 rounded-xl overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&auto=format&fit=crop&q=60"
-                      alt="Special Events"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent">
-                      <div className="absolute bottom-0 left-0 right-0 p-6">
-                        <h3 className="text-2xl font-semibold text-white mb-2">
-                          {t('products.events')}
-                        </h3>
-                        <p className="text-gray-200">
-                          {t('products.events.description')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials Section */}
-        <section className="py-20 bg-white/50 dark:bg-gray-900/50">
-          <div className="container mx-auto px-6">
-            <h2 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">
-              {t('testimonials.title')}
-            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
                 {
-                  name: t('testimonials.client1.name'),
-                  role: t('testimonials.client1.role'),
-                  content: t('testimonials.client1.content')
+                  image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622",
+                  title: t('products.weddings'),
+                  description: t('products.weddings.description')
                 },
                 {
-                  name: t('testimonials.client2.name'),
-                  role: t('testimonials.client2.role'),
-                  content: t('testimonials.client2.content')
+                  image: "https://images.unsplash.com/photo-1515816052601-210d5501d471",
+                  title: t('products.baptism'),
+                  description: t('products.baptism.description')
                 },
                 {
-                  name: t('testimonials.client3.name'),
-                  role: t('testimonials.client3.role'),
-                  content: t('testimonials.client3.content')
+                  image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3",
+                  title: t('products.events'),
+                  description: t('products.events.description')
                 }
-              ].map((testimonial, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                  className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg"
-                >
-                  <p className="text-gray-600 dark:text-gray-300 italic mb-4">
-                    "{testimonial.content}"
-                  </p>
-                  <div className="flex items-center">
-                    <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        {testimonial.name}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {testimonial.role}
-                      </p>
+              ].map((collection, index) => (
+                <Link href="/products" key={index}>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.2 }}
+                    className="cursor-pointer"
+                  >
+                    <div className="relative h-96 rounded-xl overflow-hidden">
+                      <Suspense fallback={<ImageLoader />}>
+                        <img 
+                          src={`${collection.image}?w=800&auto=format&fit=crop&q=60`}
+                          alt={collection.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                          onLoad={(e) => {
+                            const img = e.target as HTMLImageElement;
+                            img.style.opacity = "1";
+                          }}
+                          style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
+                        />
+                      </Suspense>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent">
+                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                          <h3 className="text-2xl font-semibold text-white mb-2">
+                            {collection.title}
+                          </h3>
+                          <p className="text-gray-200">
+                            {collection.description}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </div>
         </section>
+
+        {/* Testimonials Section - Lazy loaded */}
+        <Suspense fallback={<div className="py-20 bg-white/50 dark:bg-gray-900/50" />}>
+          <TestimonialsSection />
+        </Suspense>
       </main>
     </div>
   );
