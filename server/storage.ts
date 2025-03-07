@@ -141,13 +141,15 @@ export class DatabaseStorage implements IStorage {
 
   // Contact Settings methods implementation
   async getContactSettings(): Promise<ContactSettings | undefined> {
-    const [settings] = await this.db.select().from(contactSettings).limit(1);
-    return settings;
+    const result = await this.db.select().from(contactSettings).limit(1);
+    return result[0];
   }
 
   async updateContactSettings(settings: InsertContactSettings): Promise<ContactSettings> {
     const [existing] = await this.db.select().from(contactSettings).limit(1);
+
     if (existing) {
+      // Update existing record
       const [updated] = await this.db
         .update(contactSettings)
         .set(settings)
@@ -155,6 +157,7 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return updated;
     } else {
+      // Create new record only if none exists
       const [created] = await this.db
         .insert(contactSettings)
         .values(settings)
