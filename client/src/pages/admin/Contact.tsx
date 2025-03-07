@@ -63,12 +63,16 @@ export default function Contact() {
     defaultValues,
   });
 
-  const { data: settings, isLoading } = useQuery<ContactSettings>({
+  const { isLoading } = useQuery<ContactSettings>({
     queryKey: ["/api/admin/contact"],
     onSuccess: (data) => {
       if (data) {
-        form.reset({
-          ...data,
+        // Ensure we properly handle the data with casting for type safety
+        const formattedData: ContactSettings = {
+          phone: data.phone || "",
+          email: data.email || "",
+          address: data.address || "",
+          mapUrl: data.mapUrl || "",
           socialLinks: {
             facebook: data.socialLinks?.facebook || null,
             instagram: data.socialLinks?.instagram || null,
@@ -83,7 +87,8 @@ export default function Contact() {
             saturday: data.workingHours?.saturday || "",
             sunday: data.workingHours?.sunday || "",
           },
-        });
+        };
+        form.reset(formattedData);
       }
     },
   });
