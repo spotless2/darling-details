@@ -4,17 +4,18 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
-import Resources from "@/pages/Resources";
-import Pricing from "@/pages/Pricing";
-import Blog from "@/pages/Blog";
+import Products from "@/pages/Products";
+import About from "@/pages/About";
+import Contact from "@/pages/Contact";
+import "./i18n/config"; // Import i18n configuration
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/resources" component={Resources} />
-      <Route path="/pricing" component={Pricing} />
-      <Route path="/blog" component={Blog} />
+      <Route path="/products" component={Products} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
       <Route component={NotFound} />
     </Switch>
   );

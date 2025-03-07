@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useTranslation } from 'react-i18next';
 
 export default function Header() {
+  const { t } = useTranslation();
   const { scrollY } = useScroll();
   const backgroundColor = useTransform(
     scrollY,
@@ -33,37 +35,46 @@ export default function Header() {
       <div className="container mx-auto px-6 flex items-center justify-between">
         <Link href="/">
           <span className="text-2xl font-bold text-white cursor-pointer">
-            SaaS<span className="text-primary">Hub</span>
+            Darling<span className="text-primary">Details</span>
           </span>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-8">
-          <Link href="/resources">
+          <Link href="/">
             <span className={`cursor-pointer transition-colors ${
-              isActive("/resources") ? "text-white" : "text-gray-300 hover:text-white"
+              isActive("/") ? "text-white" : "text-gray-300 hover:text-white"
             }`}>
-              Resources
+              {t('nav.home')}
             </span>
           </Link>
-          <Link href="/pricing">
+          <Link href="/products">
             <span className={`cursor-pointer transition-colors ${
-              isActive("/pricing") ? "text-white" : "text-gray-300 hover:text-white"
+              isActive("/products") ? "text-white" : "text-gray-300 hover:text-white"
             }`}>
-              Pricing
+              {t('nav.products')}
             </span>
           </Link>
-          <Link href="/blog">
+          <Link href="/about">
             <span className={`cursor-pointer transition-colors ${
-              isActive("/blog") ? "text-white" : "text-gray-300 hover:text-white"
+              isActive("/about") ? "text-white" : "text-gray-300 hover:text-white"
             }`}>
-              Blog
+              {t('nav.about')}
+            </span>
+          </Link>
+          <Link href="/contact">
+            <span className={`cursor-pointer transition-colors ${
+              isActive("/contact") ? "text-white" : "text-gray-300 hover:text-white"
+            }`}>
+              {t('nav.contact')}
             </span>
           </Link>
         </nav>
 
-        <Button variant="secondary" className="bg-white text-black hover:bg-gray-100">
-          Get Started
-        </Button>
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" className="text-white hover:text-primary hover:bg-white/10">
+            Contact Us
+          </Button>
+        </div>
       </div>
     </motion.header>
   );
