@@ -1,37 +1,60 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useTranslation } from 'react-i18next';
 import { Moon, Sun, Menu, X } from "lucide-react";
 
+const NavLinks = memo(() => {
+  const { t } = useTranslation();
+  const [location] = useLocation();
+  const isActive = (path: string) => location === path;
+
+  return (
+    <>
+      {[
+        { path: "/", label: "nav.home" },
+        { path: "/products", label: "nav.products" },
+        { path: "/about", label: "nav.about" },
+        { path: "/contact", label: "nav.contact" }
+      ].map(({ path, label }) => (
+        <Link key={path} href={path}>
+          <motion.span
+            className={`relative cursor-pointer group py-2 px-4 rounded-full transition-colors ${
+              isActive(path) ? "text-primary font-medium" : "text-gray-600 dark:text-gray-300"
+            }`}
+            whileHover="hover"
+            whileTap="tap"
+          >
+            <span className="relative z-10">{t(label)}</span>
+            <motion.span
+              className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full -z-10"
+              initial={{ scale: 0, opacity: 0 }}
+              variants={{
+                hover: { scale: 1.1, opacity: 1 },
+                tap: { scale: 0.95 }
+              }}
+            />
+          </motion.span>
+        </Link>
+      ))}
+    </>
+  );
+});
+
+NavLinks.displayName = "NavLinks";
+
 export default function Header() {
   const { t, i18n } = useTranslation();
   const { scrollY } = useScroll();
-  const backgroundColor = useTransform(
-    scrollY,
-    [0, 100],
-    ["rgba(255, 255, 255, 0)", "rgba(255, 255, 255, 0.95)"]
-  );
-  const backdropBlur = useTransform(
-    scrollY,
-    [0, 100],
-    ["blur(0px)", "blur(12px)"]
-  );
-  const textOpacity = useTransform(
-    scrollY,
-    [0, 100],
-    [0.9, 1]
-  );
+  const opacity = useTransform(scrollY, [0, 100], [0.9, 0.98]);
+  const blur = useTransform(scrollY, [0, 100], [0, 8]);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [location] = useLocation();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -56,107 +79,17 @@ export default function Header() {
     i18n.changeLanguage(newLang);
   };
 
-  const isActive = (path: string) => location === path;
-
-  const NavLinks = () => (
-    <>
-      <Link href="/">
-        <motion.span
-          className={`relative cursor-pointer group ${
-            isActive("/") ? "text-primary" : "text-gray-600 dark:text-gray-300"
-          }`}
-          whileHover="hover"
-          whileTap="tap"
-        >
-          <span className="relative z-10">{t('nav.home')}</span>
-          <motion.span
-            className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full -z-10"
-            initial={{ scale: 0, opacity: 0 }}
-            variants={{
-              hover: { scale: 1.1, opacity: 1 },
-              tap: { scale: 0.95 }
-            }}
-          />
-        </motion.span>
-      </Link>
-      <Link href="/products">
-        <motion.span
-          className={`relative cursor-pointer group ${
-            isActive("/products") ? "text-primary" : "text-gray-600 dark:text-gray-300"
-          }`}
-          whileHover="hover"
-          whileTap="tap"
-        >
-          <span className="relative z-10">{t('nav.products')}</span>
-          <motion.span
-            className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full -z-10"
-            initial={{ scale: 0, opacity: 0 }}
-            variants={{
-              hover: { scale: 1.1, opacity: 1 },
-              tap: { scale: 0.95 }
-            }}
-          />
-        </motion.span>
-      </Link>
-      <Link href="/about">
-        <motion.span
-          className={`relative cursor-pointer group ${
-            isActive("/about") ? "text-primary" : "text-gray-600 dark:text-gray-300"
-          }`}
-          whileHover="hover"
-          whileTap="tap"
-        >
-          <span className="relative z-10">{t('nav.about')}</span>
-          <motion.span
-            className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full -z-10"
-            initial={{ scale: 0, opacity: 0 }}
-            variants={{
-              hover: { scale: 1.1, opacity: 1 },
-              tap: { scale: 0.95 }
-            }}
-          />
-        </motion.span>
-      </Link>
-      <Link href="/contact">
-        <motion.span
-          className={`relative cursor-pointer group ${
-            isActive("/contact") ? "text-primary" : "text-gray-600 dark:text-gray-300"
-          }`}
-          whileHover="hover"
-          whileTap="tap"
-        >
-          <span className="relative z-10">{t('nav.contact')}</span>
-          <motion.span
-            className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full -z-10"
-            initial={{ scale: 0, opacity: 0 }}
-            variants={{
-              hover: { scale: 1.1, opacity: 1 },
-              tap: { scale: 0.95 }
-            }}
-          />
-        </motion.span>
-      </Link>
-    </>
-  );
-
   return (
     <motion.header
-      style={{ backgroundColor }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "py-4" : "py-6"
+        isScrolled ? "py-3" : "py-5"
       } dark:bg-black/90`}
+      style={{
+        backgroundColor: `hsl(var(--background) / ${opacity.get()})`,
+        backdropFilter: `blur(${blur.get()}px)`,
+      }}
     >
-      <div 
-        className="absolute inset-0 bg-repeat opacity-5"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3C/g%3E%3C/svg%3E")`
-        }}
-      />
-
-      <motion.div 
-        style={{ backdropBlur }}
-        className="absolute inset-0 -z-10"
-      />
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 animate-gradient bg-300% opacity-50" />
 
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between">
@@ -168,23 +101,23 @@ export default function Header() {
             >
               <motion.span 
                 className="inline-block text-2xl md:text-3xl font-bold"
-                style={{ opacity: textOpacity }}
+                style={{ opacity: opacity }}
               >
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-600 to-primary bg-300% animate-gradient">
                   Darling
                 </span>
-                <span className="text-gray-900 dark:text-white font-serif italic">
+                <span className="text-gray-900 dark:text-white font-serif italic ml-1">
                   Details
                 </span>
               </motion.span>
             </motion.div>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-2">
             <NavLinks />
           </nav>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             <motion.div 
               whileHover={{ scale: 1.1 }} 
               whileTap={{ scale: 0.9 }}
@@ -194,7 +127,7 @@ export default function Header() {
                 variant="ghost"
                 size="icon"
                 onClick={toggleLanguage}
-                className="relative overflow-hidden"
+                className="relative overflow-hidden rounded-full"
               >
                 <motion.span 
                   className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full"
@@ -216,7 +149,7 @@ export default function Header() {
                 variant="ghost"
                 size="icon"
                 onClick={toggleTheme}
-                className="relative overflow-hidden"
+                className="relative overflow-hidden rounded-full"
               >
                 <motion.span 
                   className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full"
@@ -241,7 +174,7 @@ export default function Header() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="relative overflow-hidden"
+                className="relative overflow-hidden rounded-full"
               >
                 <motion.span 
                   className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full"
@@ -264,10 +197,10 @@ export default function Header() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg"
+            className="md:hidden overflow-hidden bg-background/95 dark:bg-gray-900/95 backdrop-blur-lg border-t border-border/50"
           >
             <motion.div 
-              className="container mx-auto px-6 py-4 flex flex-col space-y-4"
+              className="container mx-auto px-6 py-4 flex flex-col space-y-1"
               initial={{ y: -20 }}
               animate={{ y: 0 }}
               transition={{ delay: 0.1 }}
