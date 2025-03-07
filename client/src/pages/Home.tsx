@@ -12,38 +12,49 @@ export default function Home() {
       <Header />
       <main>
         {/* Hero Section */}
-        <section className="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden">
+        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+          {/* Background Image with Overlay */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1600&auto=format&fit=crop&q=80')] bg-cover bg-center opacity-10 dark:opacity-5"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-white via-white/80 to-white dark:from-black dark:via-black/80 dark:to-black"></div>
+            <div 
+              className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=2000')] bg-cover bg-center"
+              style={{ opacity: 0.15 }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
+
+            {/* Decorative Elements */}
+            <div className="absolute inset-0">
+              <div className="absolute -top-48 -left-48 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl animate-pulse" />
+              <div className="absolute -bottom-48 -right-48 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl animate-pulse delay-1000" />
+            </div>
           </div>
 
           <div className="container mx-auto px-6 relative">
             <div className="max-w-4xl mx-auto text-center">
-              <motion.h1 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6"
-              >
-                {t('hero.title')}
-              </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8"
-              >
-                {t('hero.subtitle')}
-              </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
+                transition={{ duration: 0.8 }}
+                className="mb-8"
+              >
+                <h1 className="font-serif italic text-6xl md:text-8xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary/90 via-purple-500 to-primary">
+                    Darling Details
+                  </span>
+                </h1>
+                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 font-light max-w-2xl mx-auto leading-relaxed">
+                  {t('hero.subtitle')}
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.8 }}
               >
                 <Link href="/products">
                   <Button
                     size="lg"
-                    className="bg-primary text-white hover:bg-primary/90 px-8 py-6 text-lg"
+                    className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                   >
                     {t('hero.cta')}
                   </Button>
@@ -51,6 +62,16 @@ export default function Home() {
               </motion.div>
             </div>
           </div>
+
+          {/* Scroll Indicator */}
+          <motion.div 
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.8 }}
+          >
+            <div className="w-[2px] h-16 bg-gradient-to-b from-primary/50 to-transparent rounded-full animate-pulse" />
+          </motion.div>
         </section>
 
         {/* Why Choose Us Section */}
