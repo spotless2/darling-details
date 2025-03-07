@@ -13,6 +13,7 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminProducts from "@/pages/admin/Products";
 import AdminCategories from "@/pages/admin/Categories";
 import AdminInquiries from "@/pages/admin/Inquiries";
+import AdminContact from "@/pages/admin/Contact";
 import { ProtectedRoute } from "@/lib/protected-route";
 import "./i18n/config";
 
@@ -28,6 +29,7 @@ function Router() {
       <ProtectedRoute path="/admin/products" component={AdminProducts} />
       <ProtectedRoute path="/admin/categories" component={AdminCategories} />
       <ProtectedRoute path="/admin/inquiries" component={AdminInquiries} />
+      <ProtectedRoute path="/admin/contact" component={AdminContact} />
       <Route component={NotFound} />
     </Switch>
   );

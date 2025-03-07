@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -12,9 +12,6 @@ export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
 });
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
 
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
@@ -41,6 +38,16 @@ export const inquiries = pgTable("inquiries", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const contactSettings = pgTable("contact_settings", {
+  id: serial("id").primaryKey(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  address: text("address").notNull(),
+  mapUrl: text("map_url").notNull(),
+  socialLinks: jsonb("social_links").notNull(),
+  workingHours: jsonb("working_hours").notNull(),
+});
+
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
 });
@@ -54,11 +61,21 @@ export const insertInquirySchema = createInsertSchema(inquiries).omit({
   createdAt: true,
 });
 
-export type InsertInquiry = z.infer<typeof insertInquirySchema>;
-export type Inquiry = typeof inquiries.$inferSelect;
+export const insertContactSettingsSchema = createInsertSchema(contactSettings).omit({
+  id: true,
+});
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
 
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof products.$inferSelect;
+
+export type InsertInquiry = z.infer<typeof insertInquirySchema>;
+export type Inquiry = typeof inquiries.$inferSelect;
+
+export type InsertContactSettings = z.infer<typeof insertContactSettingsSchema>;
+export type ContactSettings = typeof contactSettings.$inferSelect;

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
-import { insertInquirySchema, insertCategorySchema, insertProductSchema } from "@shared/schema";
+import { insertInquirySchema, insertCategorySchema, insertProductSchema, insertContactSettingsSchema } from "@shared/schema";
 import { z } from "zod";
 
 export function registerRoutes(app: Express): Server {
@@ -27,6 +27,15 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.get("/api/contact", async (req, res) => {
+    try {
+      const settings = await storage.getContactSettings();
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.post("/api/inquiries", async (req, res) => {
     try {
       const inquiry = insertInquirySchema.parse(req.body);
@@ -42,7 +51,6 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Protected admin routes
-  // Categories management
   app.get("/api/admin/categories", requireAuth, async (req, res) => {
     try {
       const categories = await storage.getCategories();
@@ -88,6 +96,30 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+
+  app.get("/api/admin/contact", requireAuth, async (req, res) => {
+    try {
+      const settings = await storage.getContactSettings();
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/admin/contact", requireAuth, async (req, res) => {
+    try {
+      const settings = insertContactSettingsSchema.parse(req.body);
+      const result = await storage.updateContactSettings(settings);
+      res.json(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ errors: error.errors });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  });
+
 
   // Products management
   app.get("/api/admin/products", requireAuth, async (req, res) => {

@@ -2,7 +2,8 @@ import {
   users, type User, type InsertUser,
   inquiries, type Inquiry, type InsertInquiry,
   categories, type Category, type InsertCategory,
-  products, type Product, type InsertProduct
+  products, type Product, type InsertProduct,
+  contactSettings, type ContactSettings, type InsertContactSettings
 } from "@shared/schema";
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { sql } from 'drizzle-orm';
@@ -37,6 +38,10 @@ export interface IStorage {
   getProducts(): Promise<Product[]>;
   getProductsByCategory(categoryId: number): Promise<Product[]>;
   getProductById(id: number): Promise<Product | undefined>;
+
+  // Contact Settings methods
+  getContactSettings(): Promise<ContactSettings | undefined>;
+  updateContactSettings(settings: InsertContactSettings): Promise<ContactSettings>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -132,6 +137,30 @@ export class DatabaseStorage implements IStorage {
   async getProductById(id: number): Promise<Product | undefined> {
     const result = await this.db.select().from(products).where(sql`${products.id} = ${id}`);
     return result[0];
+  }
+
+  // Contact Settings methods implementation
+  async getContactSettings(): Promise<ContactSettings | undefined> {
+    const [settings] = await this.db.select().from(contactSettings).limit(1);
+    return settings;
+  }
+
+  async updateContactSettings(settings: InsertContactSettings): Promise<ContactSettings> {
+    const [existing] = await this.db.select().from(contactSettings).limit(1);
+    if (existing) {
+      const [updated] = await this.db
+        .update(contactSettings)
+        .set(settings)
+        .where(sql`${contactSettings.id} = ${existing.id}`)
+        .returning();
+      return updated;
+    } else {
+      const [created] = await this.db
+        .insert(contactSettings)
+        .values(settings)
+        .returning();
+      return created;
+    }
   }
 }
 
