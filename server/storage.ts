@@ -25,11 +25,15 @@ export interface IStorage {
 
   // Category methods
   createCategory(category: InsertCategory): Promise<Category>;
+  updateCategory(id: number, category: InsertCategory): Promise<Category>;
+  deleteCategory(id: number): Promise<void>;
   getCategories(): Promise<Category[]>;
   getCategoryById(id: number): Promise<Category | undefined>;
 
   // Product methods
   createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: number, product: InsertProduct): Promise<Product>;
+  deleteProduct(id: number): Promise<void>;
   getProducts(): Promise<Product[]>;
   getProductsByCategory(categoryId: number): Promise<Product[]>;
   getProductById(id: number): Promise<Product | undefined>;
@@ -74,6 +78,19 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
+  async updateCategory(id: number, category: InsertCategory): Promise<Category> {
+    const result = await this.db
+      .update(categories)
+      .set(category)
+      .where(sql`${categories.id} = ${id}`)
+      .returning();
+    return result[0];
+  }
+
+  async deleteCategory(id: number): Promise<void> {
+    await this.db.delete(categories).where(sql`${categories.id} = ${id}`);
+  }
+
   async getCategories(): Promise<Category[]> {
     return await this.db.select().from(categories);
   }
@@ -87,6 +104,19 @@ export class DatabaseStorage implements IStorage {
   async createProduct(product: InsertProduct): Promise<Product> {
     const result = await this.db.insert(products).values(product).returning();
     return result[0];
+  }
+
+  async updateProduct(id: number, product: InsertProduct): Promise<Product> {
+    const result = await this.db
+      .update(products)
+      .set(product)
+      .where(sql`${products.id} = ${id}`)
+      .returning();
+    return result[0];
+  }
+
+  async deleteProduct(id: number): Promise<void> {
+    await this.db.delete(products).where(sql`${products.id} = ${id}`);
   }
 
   async getProducts(): Promise<Product[]> {

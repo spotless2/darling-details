@@ -1,13 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth } from "./auth";
 import { insertInquirySchema, insertCategorySchema, insertProductSchema } from "@shared/schema";
 import { z } from "zod";
 
 export function registerRoutes(app: Express): Server {
-  // prefix all routes with /api
+  const { requireAuth } = setupAuth(app);
 
-  // Contact form submissions
+  // Public routes
   app.post("/api/inquiries", async (req, res) => {
     try {
       const inquiry = insertInquirySchema.parse(req.body);
@@ -22,17 +23,18 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/inquiries", async (req, res) => {
+  // Protected admin routes
+  // Categories management
+  app.get("/api/admin/categories", requireAuth, async (req, res) => {
     try {
-      const inquiries = await storage.getInquiries();
-      res.json(inquiries);
+      const categories = await storage.getCategories();
+      res.json(categories);
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
     }
   });
 
-  // Categories
-  app.post("/api/categories", async (req, res) => {
+  app.post("/api/admin/categories", requireAuth, async (req, res) => {
     try {
       const category = insertCategorySchema.parse(req.body);
       const result = await storage.createCategory(category);
@@ -46,29 +48,40 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/categories", async (req, res) => {
+  app.put("/api/admin/categories/:id", requireAuth, async (req, res) => {
     try {
-      const categories = await storage.getCategories();
-      res.json(categories);
+      const category = insertCategorySchema.parse(req.body);
+      const result = await storage.updateCategory(Number(req.params.id), category);
+      res.json(result);
     } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
-  app.get("/api/categories/:id", async (req, res) => {
-    try {
-      const category = await storage.getCategoryById(Number(req.params.id));
-      if (!category) {
-        return res.status(404).json({ error: "Category not found" });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ errors: error.errors });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
       }
-      res.json(category);
+    }
+  });
+
+  app.delete("/api/admin/categories/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteCategory(Number(req.params.id));
+      res.sendStatus(200);
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
     }
   });
 
-  // Products
-  app.post("/api/products", async (req, res) => {
+  // Products management
+  app.get("/api/admin/products", requireAuth, async (req, res) => {
+    try {
+      const products = await storage.getProducts();
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/admin/products", requireAuth, async (req, res) => {
     try {
       const product = insertProductSchema.parse(req.body);
       const result = await storage.createProduct(product);
@@ -82,31 +95,34 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/products", async (req, res) => {
+  app.put("/api/admin/products/:id", requireAuth, async (req, res) => {
     try {
-      const products = await storage.getProducts();
-      res.json(products);
+      const product = insertProductSchema.parse(req.body);
+      const result = await storage.updateProduct(Number(req.params.id), product);
+      res.json(result);
     } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
-  app.get("/api/products/:id", async (req, res) => {
-    try {
-      const product = await storage.getProductById(Number(req.params.id));
-      if (!product) {
-        return res.status(404).json({ error: "Product not found" });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ errors: error.errors });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
       }
-      res.json(product);
+    }
+  });
+
+  app.delete("/api/admin/products/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteProduct(Number(req.params.id));
+      res.sendStatus(200);
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
     }
   });
 
-  app.get("/api/categories/:categoryId/products", async (req, res) => {
+  // Inquiries management
+  app.get("/api/admin/inquiries", requireAuth, async (req, res) => {
     try {
-      const products = await storage.getProductsByCategory(Number(req.params.categoryId));
-      res.json(products);
+      const inquiries = await storage.getInquiries();
+      res.json(inquiries);
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
     }
