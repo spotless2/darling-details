@@ -15,16 +15,25 @@ export default function Home() {
         <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
           {/* Background Image with Overlay */}
           <div className="absolute inset-0 pointer-events-none">
+            {/* Primary Background Image */}
             <div 
-              className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=2000')] bg-cover bg-center"
-              style={{ opacity: 0.15 }}
+              className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=2000')] bg-cover bg-center bg-fixed"
+              style={{ opacity: 0.25 }}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
 
-            {/* Decorative Elements */}
-            <div className="absolute inset-0">
-              <div className="absolute -top-48 -left-48 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl animate-pulse" />
-              <div className="absolute -bottom-48 -right-48 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl animate-pulse delay-1000" />
+            {/* Multiple Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-background via-background/80 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 via-background/90 to-background" />
+
+            {/* Animated Pattern Overlay */}
+            <div className="absolute inset-0 opacity-[0.15]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,theme(colors.primary.DEFAULT)/0.1_1px,transparent_1px)] [background-size:40px_40px]" />
+            </div>
+
+            {/* Decorative Blobs */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full filter blur-3xl animate-pulse" />
+              <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full filter blur-3xl animate-pulse delay-1000" />
             </div>
           </div>
 
@@ -36,9 +45,12 @@ export default function Home() {
                 transition={{ duration: 0.8 }}
                 className="mb-8"
               >
-                <h1 className="font-serif italic text-6xl md:text-8xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary/90 via-purple-500 to-primary">
-                    Darling Details
+                <h1 className="font-serif italic text-6xl md:text-8xl font-bold mb-6 tracking-tight">
+                  <span className="relative">
+                    <span className="absolute inset-0 bg-gradient-to-r from-primary/90 via-purple-500 to-primary blur-2xl opacity-50" />
+                    <span className="relative bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-primary animate-gradient bg-300%">
+                      Darling Details
+                    </span>
                   </span>
                 </h1>
                 <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 font-light max-w-2xl mx-auto leading-relaxed">
