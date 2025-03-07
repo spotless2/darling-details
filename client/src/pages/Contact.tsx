@@ -15,12 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Facebook, Instagram, Twitter } from "lucide-react";
-import { useContentful } from "@/lib/contentful";
-import type { Entry } from 'contentful';
-import type { ContactInfo } from "@/lib/contentful";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -37,14 +34,25 @@ const formSchema = z.object({
   }),
 });
 
+type ContactSettings = {
+  phone: string;
+  email: string;
+  address: string;
+  mapUrl: string;
+  socialLinks: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+  };
+  workingHours: Record<string, string>;
+};
+
 export default function Contact() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const { getContactInfo } = useContentful();
 
-  const { data: contactInfo, isLoading: settingsLoading } = useQuery<Entry<ContactInfo>>({
-    queryKey: ["contactInfo"],
-    queryFn: getContactInfo,
+  const { data: settings, isLoading: settingsLoading } = useQuery<ContactSettings>({
+    queryKey: ["/api/contact"],
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -57,35 +65,40 @@ export default function Contact() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const response = await fetch('https://api.web3forms.com/submit', {
+  const mutation = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      const response = await fetch('/api/inquiries', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          access_key: import.meta.env.VITE_WEB3FORMS_KEY,
-          ...values,
-        }),
+        body: JSON.stringify(values),
       });
 
-      if (response.ok) {
-        toast({
-          title: t('contact.success.title'),
-          description: t('contact.success.description'),
-        });
-        form.reset();
-      } else {
+      if (!response.ok) {
         throw new Error(t('contact.form.errors.submitFailed'));
       }
-    } catch (error) {
+
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: t('contact.success.title'),
+        description: t('contact.success.description'),
+      });
+      form.reset();
+    },
+    onError: (error) => {
       toast({
         title: t('contact.error.title'),
-        description: error instanceof Error ? error.message : 'An error occurred',
+        description: error.message,
         variant: "destructive",
       });
-    }
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    mutation.mutate(values);
   }
 
   const socialIcons = {
@@ -102,7 +115,7 @@ export default function Contact() {
         <section className="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">
             {/* Primary Background Image */}
-            <div
+            <div 
               className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=2000')] bg-cover bg-center bg-fixed"
               style={{ opacity: 0.25 }}
             />
@@ -199,12 +212,19 @@ export default function Contact() {
                           </FormItem>
                         )}
                       />
-                      <Button
-                        type="submit"
+                      <Button 
+                        type="submit" 
                         className="w-full bg-primary hover:bg-primary/90 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-                        disabled={false}
+                        disabled={mutation.isPending}
                       >
-                        {t('contact.form.submit')}
+                        {mutation.isPending ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            {t('contact.form.sending')}
+                          </>
+                        ) : (
+                          t('contact.form.submit')
+                        )}
                       </Button>
                     </form>
                   </Form>
@@ -220,26 +240,26 @@ export default function Contact() {
                     <div className="flex items-center justify-center h-full">
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
-                  ) : contactInfo ? (
+                  ) : settings ? (
                     <>
                       <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
                         <div className="space-y-6">
                           <div>
                             <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.email')}</h2>
-                            <p className="text-gray-700 dark:text-gray-300">{contactInfo.fields?.email}</p>
+                            <p className="text-gray-700 dark:text-gray-300">{settings.email}</p>
                           </div>
                           <div>
                             <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.phone')}</h2>
-                            <p className="text-gray-700 dark:text-gray-300">{contactInfo.fields?.phone}</p>
+                            <p className="text-gray-700 dark:text-gray-300">{settings.phone}</p>
                           </div>
                           <div>
                             <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.address')}</h2>
-                            <p className="text-gray-700 dark:text-gray-300">{contactInfo.fields?.address}</p>
+                            <p className="text-gray-700 dark:text-gray-300">{settings.address}</p>
                           </div>
                           <div>
                             <h2 className="text-gray-900 dark:text-white font-semibold mb-2">{t('contact.info.workingHours')}</h2>
                             <div className="space-y-2">
-                              {Object.entries(contactInfo.fields?.workingHours || {}).map(([day, hours]) => (
+                              {Object.entries(settings.workingHours).map(([day, hours]) => (
                                 <div key={day} className="flex justify-between">
                                   <span className="text-gray-600 dark:text-gray-400 capitalize">{t(`contact.days.${day}`)}</span>
                                   <span className="text-gray-700 dark:text-gray-300">{hours}</span>
@@ -250,7 +270,7 @@ export default function Contact() {
                           <div>
                             <h2 className="text-gray-900 dark:text-white font-semibold mb-4">{t('contact.info.social')}</h2>
                             <div className="flex space-x-4">
-                              {Object.entries(contactInfo.fields?.socialLinks || {}).map(([platform, url]) => {
+                              {Object.entries(settings.socialLinks).map(([platform, url]) => {
                                 if (!url) return null;
                                 const Icon = socialIcons[platform as keyof typeof socialIcons];
                                 return (
@@ -274,7 +294,7 @@ export default function Contact() {
 
                       <div className="h-[400px] rounded-2xl overflow-hidden shadow-lg">
                         <iframe
-                          src={contactInfo.fields?.mapUrl}
+                          src={settings.mapUrl}
                           width="100%"
                           height="100%"
                           style={{ border: 0 }}
