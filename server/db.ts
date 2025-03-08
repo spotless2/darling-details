@@ -1,10 +1,7 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 import 'dotenv/config';
-
-neonConfig.webSocketConstructor = ws;
 
 // Validate database environment variables
 const requiredEnvVars = ['PGUSER', 'PGHOST', 'PGPASSWORD', 'PGDATABASE', 'PGPORT'];
@@ -30,7 +27,7 @@ export const pool = new Pool({
 });
 
 // Initialize Drizzle with the pool and schema
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle(pool, { schema });
 
 // Add error handling for the pool
 pool.on('error', (err) => {
