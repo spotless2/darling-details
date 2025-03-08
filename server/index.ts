@@ -3,6 +3,8 @@ import compression from "compression";
 import { setupVite, serveStatic, log } from "./vite";
 import routes from './routes';
 import { sequelize } from './models';
+// Add this import
+import { setupAuth } from './auth';
 
 const app = express();
 
@@ -22,6 +24,9 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Set up authentication BEFORE defining routes
+setupAuth(app);
 
 // Logging middleware
 app.use((req, res, next) => {
