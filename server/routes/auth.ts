@@ -3,6 +3,7 @@ import passport from 'passport';
 
 const router = Router();
 
+// Login route with proper passport authentication
 router.post("/login", passport.authenticate("local"), (req, res) => {
   res.status(200).json(req.user);
 });
