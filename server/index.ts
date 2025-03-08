@@ -2,6 +2,10 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import compression from "compression";
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 
@@ -63,19 +67,16 @@ app.use((req, res, next) => {
     res.status(status).json({ message });
   });
 
-  // Importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client
-  const PORT = 5000;
-  server.listen(PORT, "0.0.0.0", () => {
-    log(`serving on port ${PORT}`);
+  const PORT = parseInt(process.env.PORT || '5000', 10);
+  const HOST = '0.0.0.0'; // Listen on all network interfaces
+
+  server.listen(PORT, HOST, () => {
+    log(`Server running at http://${HOST}:${PORT}`);
   });
 })();
