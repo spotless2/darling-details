@@ -4,7 +4,14 @@ import { Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { User } from "./models";
+import { storage } from "./storage";
+import { User as SelectUser } from "@shared/schema";
+
+declare global {
+  namespace Express {
+    interface User extends SelectUser {}
+  }
+}
 
 const scryptAsync = promisify(scrypt);
 
@@ -38,38 +45,29 @@ export function setupAuth(app: Express) {
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
-      try {
-        const user = await User.findOne({ where: { username } });
-        if (!user || !(await comparePasswords(password, user.password))) {
-          return done(null, false);
-        }
+      const user = await storage.getUserByUsername(username);
+      if (!user || !(await comparePasswords(password, user.password))) {
+        return done(null, false);
+      } else {
         return done(null, user);
-      } catch (error) {
-        return done(error);
       }
     }),
   );
 
-  passport.serializeUser((user: any, done) => done(null, user.id));
+  passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser(async (id: number, done) => {
-    try {
-      const user = await User.findByPk(id);
-      done(null, user);
-    } catch (error) {
-      done(error);
-    }
+    const user = await storage.getUser(id);
+    done(null, user);
   });
 
   // Create initial admin user if it doesn't exist
-  User.findOne({ where: { username: 'admin' } }).then(async (user) => {
+  storage.getUserByUsername("admin").then(async (user) => {
     if (!user) {
-      await User.create({
-        username: 'admin',
-        password: await hashPassword('admin'),
-        email: 'admin@example.com',
-        role: 'admin'
+      await storage.createUser({
+        username: "admin",
+        password: await hashPassword("admin"),
       });
-      console.log('Created default admin user');
+      console.log("Created default admin user");
     }
   });
 
@@ -90,7 +88,7 @@ export function setupAuth(app: Express) {
   });
 
   // Middleware to check if user is authenticated
-  const requireAuth = (req: any, res: any, next: any) => {
+  const requireAuth = (req: Express.Request, res: Express.Response, next: Express.NextFunction) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ error: "Unauthorized" });
     }
